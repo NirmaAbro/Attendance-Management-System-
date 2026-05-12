@@ -106,75 +106,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // =====================================================
 // CREATE STUDENT
 // =====================================================
+
 func CreateStudent(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json")
-
-	var req struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var req models.Student
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		jsonErr(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	// Validation
 	if req.Name == "" || req.Email == "" || req.Password == "" {
 		jsonErr(w, "All fields are required", http.StatusBadRequest)
 		return
 	}
 
-	// Email validation
-	if !strings.Contains(req.Email, "@") {
-		jsonErr(w, "Invalid email format", http.StatusBadRequest)
-		return
-	}
+	req.Role = "student"
 
-	// Password length validation
-	if len(req.Password) < 6 {
-		jsonErr(w, "Password must be at least 6 characters", http.StatusBadRequest)
-		return
-	}
-
-	// Check duplicate email
-	existingStudent, _ := storage.GetStudentByEmail(req.Email)
-
-	if existingStudent != nil {
-		jsonErr(w, "Email already exists", http.StatusConflict)
-		return
-	}
-
-	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(req.Password),
-		bcrypt.DefaultCost,
-	)
-
-	if err != nil {
-		jsonErr(w, "Failed to hash password", http.StatusInternalServerError)
-		return
-	}
-
-	student := models.Student{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: string(hashedPassword),
-		Role:     "student",
-	}
-
-	id, err := storage.CreateStudent(student)
+	id, err := storage.CreateStudent(req)
 
 	if err != nil {
 		jsonErr(w, "Failed to create student", http.StatusInternalServerError)
@@ -185,6 +141,77 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 		"id": id,
 	})
 }
+
+// func CreateStudent(w http.ResponseWriter, r *http.Request) {
+
+// 	w.Header().Set("Content-Type", "application/json")
+
+// 	var req struct {
+// 		Name     string `json:"name"`
+// 		Email    string `json:"email"`
+// 		Password string `json:"password"`
+// 	}
+
+// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+// 		jsonErr(w, "Invalid request body", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	// Validation
+// 	if req.Name == "" || req.Email == "" || req.Password == "" {
+// 		jsonErr(w, "All fields are required", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	// Email validation
+// 	if !strings.Contains(req.Email, "@") {
+// 		jsonErr(w, "Invalid email format", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	// Password length validation
+// 	if len(req.Password) < 6 {
+// 		jsonErr(w, "Password must be at least 6 characters", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	// Check duplicate email
+// 	existingStudent, _ := storage.GetStudentByEmail(req.Email)
+
+// 	if existingStudent != nil {
+// 		jsonErr(w, "Email already exists", http.StatusConflict)
+// 		return
+// 	}
+
+// 	// Hash password
+// 	hashedPassword, err := bcrypt.GenerateFromPassword(
+// 		[]byte(req.Password),
+// 		bcrypt.DefaultCost,
+// 	)
+
+// 	if err != nil {
+// 		jsonErr(w, "Failed to hash password", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	student := models.Student{
+// 		Name:     req.Name,
+// 		Email:    req.Email,
+// 		Password: string(hashedPassword),
+// 		Role:     "student",
+// 	}
+
+// 	id, err := storage.CreateStudent(student)
+
+// 	if err != nil {
+// 		jsonErr(w, "Failed to create student", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	jsonOK(w, "Student created successfully", map[string]string{
+// 		"id": id,
+// 	})
+// }
 
 // =====================================================
 // GET ALL STUDENTS
@@ -230,34 +257,26 @@ func GetStudentByID(w http.ResponseWriter, r *http.Request) {
 // =====================================================
 // UPDATE STUDENT
 // =====================================================
+
 func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json")
+	id := mux.Vars(r)["id"]
 
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	var req struct {
+	var body struct {
 		Name  string `json:"name"`
 		Email string `json:"email"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		jsonErr(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if req.Name == "" || req.Email == "" {
-		jsonErr(w, "Name and email are required", http.StatusBadRequest)
-		return
-	}
-
-	if !strings.Contains(req.Email, "@") {
-		jsonErr(w, "Invalid email format", http.StatusBadRequest)
-		return
-	}
-
-	student, err := storage.UpdateStudent(id, req.Name, req.Email)
+	student, err := storage.UpdateStudent(
+		id,
+		body.Name,
+		body.Email,
+	)
 
 	if err != nil {
 		jsonErr(w, "Failed to update student", http.StatusInternalServerError)
@@ -266,6 +285,43 @@ func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
 	jsonOK(w, "Student updated successfully", student)
 }
+
+// func UpdateStudent(w http.ResponseWriter, r *http.Request) {
+
+// 	w.Header().Set("Content-Type", "application/json")
+
+// 	vars := mux.Vars(r)
+// 	id := vars["id"]
+
+// 	var req struct {
+// 		Name  string `json:"name"`
+// 		Email string `json:"email"`
+// 	}
+
+// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+// 		jsonErr(w, "Invalid request body", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	if req.Name == "" || req.Email == "" {
+// 		jsonErr(w, "Name and email are required", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	if !strings.Contains(req.Email, "@") {
+// 		jsonErr(w, "Invalid email format", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	student, err := storage.UpdateStudent(id, req.Name, req.Email)
+
+// 	if err != nil {
+// 		jsonErr(w, "Failed to update student", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	jsonOK(w, "Student updated successfully", student)
+// }
 
 // =====================================================
 // DELETE STUDENT
@@ -536,4 +592,70 @@ func StudentChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonOK(w, "Password updated", nil)
+}
+
+func AdminUpdateStudent(w http.ResponseWriter, r *http.Request) {
+
+	id := mux.Vars(r)["id"]
+
+	var body struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		jsonErr(w, "Invalid body", http.StatusBadRequest)
+		return
+	}
+
+	updatedStudent, err := storage.UpdateStudent(
+		id,
+		body.Name,
+		body.Email,
+	)
+
+	if err != nil {
+		jsonErr(w, "Failed to update student", http.StatusInternalServerError)
+		return
+	}
+
+	jsonOK(w, "Student updated successfully", updatedStudent)
+}
+
+func AdminCreateStudent(w http.ResponseWriter, r *http.Request) {
+
+	var req models.RegisterRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonErr(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.Name == "" || req.Email == "" || req.Password == "" {
+		jsonErr(w, "All fields are required", http.StatusBadRequest)
+		return
+	}
+
+	existing, _ := storage.GetStudentByEmail(req.Email)
+
+	if existing != nil {
+		jsonErr(w, "Email already exists", http.StatusConflict)
+		return
+	}
+
+	id, err := storage.CreateStudent(models.Student{
+		Name:     req.Name,
+		Email:    req.Email,
+		Password: req.Password,
+		Role:     "student",
+	})
+
+	if err != nil {
+		jsonErr(w, "Failed to create student", http.StatusInternalServerError)
+		return
+	}
+
+	jsonOK(w, "Student created successfully", map[string]string{
+		"id": id,
+	})
 }

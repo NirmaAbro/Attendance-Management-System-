@@ -17,6 +17,18 @@ export const api = {
   me:       ()             => request('/me'),
 
   admin: {
+    createStudent: (body: object) =>
+      request('/admin/students', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    
+    updateStudent: (id: string, body: object) =>
+      request(`/admin/students/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      }),
+      
     getStudents:       ()                          => request('/admin/students'),
     deleteStudent:     (id: string)                => request(`/admin/students/${id}`,    { method: 'DELETE' }),
     getAttendance:     ()                          => request('/admin/attendance'),
