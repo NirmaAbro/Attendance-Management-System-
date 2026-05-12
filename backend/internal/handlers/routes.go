@@ -176,4 +176,10 @@ func RegisterRoutes(r *mux.Router) {
 		// RequireStudent(StudentChangePassword),
 		StudentChangePassword,
 	).Methods("PUT", "OPTIONS")
+
+	// Student sees ONLY own attendance
+	api.HandleFunc(
+		"/student/attendance",
+		StudentGetAttendance,
+	).Methods("GET", "OPTIONS")
 }

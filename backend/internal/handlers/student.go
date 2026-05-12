@@ -289,12 +289,39 @@ func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 // =====================================================
 // STUDENT GET ATTENDANCE
 // =====================================================
+// func StudentGetAttendance(w http.ResponseWriter, r *http.Request) {
+
+// 	w.Header().Set("Content-Type", "application/json")
+
+// 	userID := sessionUserID(r)
+
+// 	list, err := storage.GetAttendanceByStudentID(userID)
+
+// 	if err != nil {
+// 		jsonErr(w, "Failed to fetch attendance", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	if list == nil {
+// 		list = []models.Attendance{}
+// 	}
+
+// 	jsonOK(w, "Attendance fetched successfully", list)
+// }
+
 func StudentGetAttendance(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
+	// get logged-in student id from session
 	userID := sessionUserID(r)
 
+	if userID == "" {
+		jsonErr(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// fetch ONLY logged-in student's attendance
 	list, err := storage.GetAttendanceByStudentID(userID)
 
 	if err != nil {
@@ -413,68 +440,89 @@ func StudentDownloadReport(w http.ResponseWriter, r *http.Request) {
 // =====================================================
 // CHANGE PASSWORD
 // =====================================================
+// func StudentChangePassword(w http.ResponseWriter, r *http.Request) {
+
+// 	w.Header().Set("Content-Type", "application/json")
+
+// 	userID := sessionUserID(r)
+
+// 	var req models.ChangePasswordRequest
+
+// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+// 		jsonErr(w, "Invalid request body", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	if req.OldPassword == "" || req.NewPassword == "" {
+// 		jsonErr(w, "Old and new password are required", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	if len(req.NewPassword) < 6 {
+// 		jsonErr(w, "New password must be at least 6 characters", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	student, err := storage.GetStudentByID(userID)
+
+// 	if err != nil || student == nil {
+// 		jsonErr(w, "Student not found", http.StatusNotFound)
+// 		return
+// 	}
+
+// 	// Compare old password
+// 	err = bcrypt.CompareHashAndPassword(
+// 		[]byte(student.Password),
+// 		[]byte(req.OldPassword),
+// 	)
+
+// 	if err != nil {
+// 		jsonErr(w, "Old password is incorrect", http.StatusUnauthorized)
+// 		return
+// 	}
+
+// 	// Hash new password
+// 	hashedPassword, err := bcrypt.GenerateFromPassword(
+// 		[]byte(req.NewPassword),
+// 		bcrypt.DefaultCost,
+// 	)
+
+// 	if err != nil {
+// 		jsonErr(w, "Failed to hash password", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	// Update password
+// 	err = storage.UpdateStudentPassword(
+// 		userID,
+// 		string(hashedPassword),
+// 	)
+
+// 	if err != nil {
+// 		jsonErr(w, "Failed to update password", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	jsonOK(w, "Password updated successfully", nil)
+// }
+
 func StudentChangePassword(w http.ResponseWriter, r *http.Request) {
-
-	w.Header().Set("Content-Type", "application/json")
-
 	userID := sessionUserID(r)
-
 	var req models.ChangePasswordRequest
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonErr(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if req.OldPassword == "" || req.NewPassword == "" {
-		jsonErr(w, "Old and new password are required", http.StatusBadRequest)
-		return
-	}
-
-	if len(req.NewPassword) < 6 {
-		jsonErr(w, "New password must be at least 6 characters", http.StatusBadRequest)
-		return
-	}
+	json.NewDecoder(r.Body).Decode(&req)
 
 	student, err := storage.GetStudentByID(userID)
-
 	if err != nil || student == nil {
 		jsonErr(w, "Student not found", http.StatusNotFound)
 		return
 	}
-
-	// Compare old password
-	err = bcrypt.CompareHashAndPassword(
-		[]byte(student.Password),
-		[]byte(req.OldPassword),
-	)
-
-	if err != nil {
+	if student.Password != req.OldPassword {
 		jsonErr(w, "Old password is incorrect", http.StatusUnauthorized)
 		return
 	}
-
-	// Hash new password
-	hashedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(req.NewPassword),
-		bcrypt.DefaultCost,
-	)
-
-	if err != nil {
-		jsonErr(w, "Failed to hash password", http.StatusInternalServerError)
-		return
-	}
-
-	// Update password
-	err = storage.UpdateStudentPassword(
-		userID,
-		string(hashedPassword),
-	)
-
-	if err != nil {
+	if err := storage.UpdateStudentPassword(userID, req.NewPassword); err != nil {
 		jsonErr(w, "Failed to update password", http.StatusInternalServerError)
 		return
 	}
-
-	jsonOK(w, "Password updated successfully", nil)
+	jsonOK(w, "Password updated", nil)
 }
