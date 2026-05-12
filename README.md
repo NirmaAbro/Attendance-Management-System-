@@ -1,186 +1,448 @@
-# 🎓 Attendance Management System
-### Next.js + Go (Golang) + MongoDB
+# README.md
+
+````md
+# 📚 Web-Based Academic Attendance Tracking System
+
+A modern full-stack Academic Attendance Management System built using **Next.js**, **TypeScript**, **Golang**, and **MongoDB**.
+
+This system allows administrators to manage students, track attendance, analyze attendance performance with charts, approve correction requests, and generate downloadable reports.
 
 ---
 
-## ⚡ Quick Start (3 steps)
+# 🚀 Features
 
-### Step 1 — Start MongoDB
+## 🔐 Authentication & Authorization
+
+- JWT Authentication
+- Role-Based Access Control
+- Secure Login System
+- Protected Routes
+- Password Hashing using bcrypt
+
+---
+
+# 👨‍💼 Admin Features
+
+## 📌 Student Management
+
+- Create Student
+- Update Student
+- Delete Student
+- View All Students
+- Search Students
+
+---
+
+## 📌 Attendance Management
+
+- Mark Attendance
+- Edit Attendance
+- Delete Attendance
+- Attendance Status (Present / Absent)
+- Attendance History
+
+---
+
+## 📊 Analytics Dashboard
+
+### Includes:
+
+- Total Students
+- Attendance Rate
+- Present Records
+- Absent Records
+
+### Charts
+
+- Pie Chart (Present vs Absent)
+- Bar Chart (Top Students)
+- Line Chart (Attendance Trends)
+
+### Smart Insights
+
+- Top Performing Students
+- Low Attendance Students
+- Attendance Analytics
+- Risk Student Detection
+
+---
+
+## 📩 Correction Requests
+
+Admin can:
+
+- Approve Correction Requests
+- Reject Correction Requests
+- Manage Attendance Corrections
+
+---
+
+## 📄 Reports Module
+
+- Download Attendance Reports as CSV
+- Download Attendance Reports as PDF
+
+---
+
+# 👨‍🎓 Student Features
+
+Students can:
+
+- Login Securely
+- View Their Own Attendance Only
+- Track Attendance Percentage
+- View Attendance History
+- Submit Correction Requests
+
+---
+
+# 🛡️ Privacy & Security
+
+- Students cannot access other students’ records
+- Admin has full system access
+- JWT Middleware protects APIs
+- Passwords are securely hashed
+
+---
+
+# 🏗️ System Architecture
+
+The project follows a **Three-Tier Architecture**:
+
+```text
+Frontend (Next.js)
+        ↓
+Backend REST API (Go/Golang)
+        ↓
+MongoDB Database
+````
+
+---
+
+# 🧰 Tech Stack
+
+# Frontend
+
+* Next.js 15
+* React.js
+* TypeScript
+* Tailwind CSS
+* Recharts
+* Lucide React
+
+---
+
+# Backend
+
+* Golang (Go)
+* Gorilla Mux
+* JWT Authentication
+* bcrypt
+
+---
+
+# Database
+
+* MongoDB
+
+---
+
+# 📦 Libraries Used
+
+## Frontend Packages
+
 ```bash
-# Option A: If MongoDB is installed locally
-mongod --dbpath /data/db
-
-# Option B: Use Docker (easiest!)
-docker run -d -p 27017:27017 --name mongodb mongo:7
+npm install recharts lucide-react
 ```
 
-### Step 2 — Start Backend (Go)
-```bash
-cd backend
-go mod tidy
-go run cmd/main.go
-```
-✅ API runs at **http://localhost:8080**  
-✅ Auto-creates database + default admin on first run
+Other dependencies:
 
-### Step 3 — Start Frontend (Next.js)
+* next
+* react
+* react-dom
+* typescript
+* tailwindcss
+
+---
+
+## Backend Packages
+
+```bash
+go get github.com/gorilla/mux
+go get github.com/golang-jwt/jwt/v5
+go get go.mongodb.org/mongo-driver/mongo
+go get golang.org/x/crypto/bcrypt
+```
+
+---
+
+# 💻 System Requirements
+
+| Software | Version |
+| -------- | ------- |
+| Node.js  | v20+    |
+| npm      | v10+    |
+| Go       | v1.22+  |
+| MongoDB  | v7+     |
+
+---
+
+# 📁 Project Structure
+
+```text
+attendance-system/
+│
+├── frontend/                 # Next.js Frontend
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   └── public/
+│
+├── backend/                  # Golang Backend
+│   ├── handlers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   └── main.go
+│
+└── README.md
+```
+
+---
+
+# ⚙️ Installation & Setup
+
+# 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/your-username/attendance-system.git
+```
+
+---
+
+# 2️⃣ Frontend Setup
+
+## Navigate to frontend
+
 ```bash
 cd frontend
+```
+
+## Install dependencies
+
+```bash
 npm install
+```
+
+## Run frontend server
+
+```bash
 npm run dev
 ```
-✅ App runs at **http://localhost:3000**
 
----
+Frontend will run on:
 
-## 🔑 Default Login
-
-| Role | Email | Password |
-|------|-------|----------|
-| **Admin** | `admin@gmail.com` | `admin123` |
-| Student | Register via UI | Your choice |
-
-> **Note:** The Chrome "Change your password" popup is a Google Password Manager warning about the demo password. Just click **OK** — it does NOT affect the app. The login works fine.
-
----
-
-## 📁 Project Structure
-
-```
-attendance-system/
-├── backend/
-│   ├── cmd/main.go                      ← Entry point (port 8080)
-│   ├── internal/
-│   │   ├── models/models.go             ← All data models
-│   │   ├── handlers/
-│   │   │   ├── handler.go               ← Middleware + session helpers
-│   │   │   ├── auth.go                  ← Login, register, logout
-│   │   │   ├── admin.go                 ← Admin API handlers
-│   │   │   ├── student.go               ← Student API handlers
-│   │   │   └── routes.go                ← All API routes
-│   │   └── storage/mongo.go             ← MongoDB + in-memory fallback
-│   └── go.mod
-│
-├── frontend/
-│   ├── app/
-│   │   ├── auth/login/page.tsx          ← Login page
-│   │   ├── auth/register/page.tsx       ← Register page
-│   │   ├── admin/page.tsx               ← Admin dashboard
-│   │   └── student/page.tsx             ← Student dashboard
-│   ├── components/Sidebar.tsx           ← Shared sidebar
-│   ├── lib/
-│   │   ├── api.ts                       ← API client
-│   │   └── auth-context.tsx             ← Auth state
-│   └── .env.local                       ← API URL config
-│
-└── database/seed.js                     ← Optional MongoDB seed script
-```
-
----
-
-## 🌐 API Reference
-
-### Auth (Public)
-| Method | Endpoint | Body |
-|--------|----------|------|
-| POST | `/api/register` | `{name, email, password, role}` |
-| POST | `/api/login` | `{email, password, role}` |
-| POST | `/api/logout` | — |
-| GET | `/api/me` | — |
-
-### Admin (requires admin session)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/admin/students` | List students |
-| DELETE | `/api/admin/students/:id` | Delete student |
-| GET | `/api/admin/attendance` | All attendance |
-| POST | `/api/admin/attendance` | Add record |
-| PUT | `/api/admin/attendance/:id` | Update status |
-| DELETE | `/api/admin/attendance/:id` | Delete record |
-| GET | `/api/admin/corrections` | All requests |
-| PUT | `/api/admin/corrections/:id` | Approve/Reject |
-| PUT | `/api/admin/change-password` | Change password |
-
-### Student (requires student session)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/student/attendance` | My attendance |
-| GET | `/api/student/corrections` | My requests |
-| POST | `/api/student/corrections` | Submit request |
-| GET | `/api/student/report` | Download CSV |
-| PUT | `/api/student/change-password` | Change password |
-
----
-
-## 🏗️ Architecture
-
-```
-Browser (Next.js)
-      │  REST API + cookies
-      ▼
-Go Backend (Gorilla Mux)
-  ├── RBAC Middleware (admin / student)
-  ├── Cookie Session Auth
-  └── MongoDB Driver
-        │
-        ▼
-   MongoDB Atlas / Local
-   attendance_db
-   ├── admins
-   ├── students
-   ├── attendance
-   └── corrections
-```
-
----
-
-## ⚙️ Environment Variables
-
-**Backend** — set via environment or hardcoded in `cmd/main.go`:
 ```bash
-MONGO_URI=mongodb://localhost:27017   # default
-PORT=8080                              # default
-```
-
-**Frontend** — `frontend/.env.local`:
-```
-NEXT_PUBLIC_API_URL=http://localhost:8080/api
+http://localhost:3000
 ```
 
 ---
 
-## 🛠️ Prerequisites
+# 3️⃣ Backend Setup
 
-| Tool | Version | Download |
-|------|---------|----------|
-| Go | 1.21+ | https://go.dev/dl/ |
-| Node.js | 18+ | https://nodejs.org |
-| MongoDB | 7+ | https://www.mongodb.com/try/download/community |
+## Navigate to backend
 
-**Or use MongoDB Atlas (free cloud):**
-1. Create free cluster at https://cloud.mongodb.com
-2. Get connection string
-3. Set `MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net`
-
----
-
-## 🐛 Troubleshooting
-
-**"Connection error. Is the backend running?"**
-→ Run `go run cmd/main.go` in the backend folder
-
-**MongoDB not available**
-→ Backend automatically uses **in-memory storage** as fallback — works fine for testing without installing MongoDB
-
-**Port already in use**
 ```bash
-# Windows
-netstat -ano | findstr :8080
-taskkill /PID <PID> /F
-
-# Mac/Linux
-lsof -ti:8080 | xargs kill
+cd backend
 ```
 
-**Chrome "Change your password" popup**
-→ Just click OK. It's Chrome's password manager warning — not a bug.
+## Initialize Go modules
+
+```bash
+go mod init attendance-backend
+```
+
+## Install dependencies
+
+```bash
+go mod tidy
+```
+
+## Run backend server
+
+```bash
+go run main.go
+```
+
+Backend will run on:
+
+```bash
+http://localhost:8080
+```
+
+---
+
+# 4️⃣ MongoDB Setup
+
+## Start MongoDB
+
+```bash
+mongod
+```
+
+MongoDB runs on:
+
+```bash
+mongodb://localhost:27017
+```
+
+---
+
+# 🔑 Environment Variables
+
+Create `.env.local` inside frontend:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
+
+---
+
+Create `.env` inside backend:
+
+```env
+MONGO_URI=mongodb://localhost:27017
+JWT_SECRET=your_secret_key
+DB_NAME=attendance_system
+```
+
+---
+
+# 📊 Dashboard Tabs
+
+| Tab         | Description                |
+| ----------- | -------------------------- |
+| Students    | Manage students            |
+| Attendance  | Mark & manage attendance   |
+| Analytics   | Charts & insights          |
+| Reports     | Download reports           |
+| Corrections | Approve/reject corrections |
+
+---
+
+# 📈 Analytics Features
+
+## KPI Cards
+
+* Total Students
+* Attendance Rate
+* Present Records
+* Absent Records
+
+---
+
+## Charts
+
+### Pie Chart
+
+Shows:
+
+* Present vs Absent Ratio
+
+### Bar Chart
+
+Shows:
+
+* Top Attendance Students
+
+### Line Chart
+
+Shows:
+
+* Attendance Trends Over Time
+
+---
+
+# 🔄 API Endpoints
+
+# Authentication
+
+| Method | Endpoint |
+| ------ | -------- |
+| POST   | /login   |
+
+---
+
+# Students
+
+| Method | Endpoint      |
+| ------ | ------------- |
+| GET    | /students     |
+| POST   | /students     |
+| PUT    | /students/:id |
+| DELETE | /students/:id |
+
+---
+
+# Attendance
+
+| Method | Endpoint        |
+| ------ | --------------- |
+| GET    | /attendance     |
+| POST   | /attendance     |
+| PUT    | /attendance/:id |
+| DELETE | /attendance/:id |
+
+---
+
+# Corrections
+
+| Method | Endpoint         |
+| ------ | ---------------- |
+| GET    | /corrections     |
+| PUT    | /corrections/:id |
+
+---
+
+# 🎨 UI Features
+
+* Modern Glassmorphism Design
+* Responsive Dashboard
+* Animated Hover Effects
+* Modern Tables
+* Analytics Charts
+* Clean Admin Interface
+
+---
+
+# 📌 Future Improvements
+
+* AI Attendance Prediction
+* Face Recognition Attendance
+* Dark Mode
+* Email Notifications
+* SMS Alerts
+* Mobile App
+* Real-Time Attendance Tracking
+
+---
+
+# 👨‍💻 Author
+
+Developed by:
+Your Name
+
+---
+
+# 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
+# ⭐ Support
+
+If you like this project, give it a ⭐ on GitHub.
+
+```
+```
