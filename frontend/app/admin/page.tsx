@@ -588,8 +588,30 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
               <h2 className="font-semibold text-slate-800 mb-4 flex items-center gap-2"><Plus size={16} className="text-indigo-600" />Mark Attendance</h2>
               <form onSubmit={addAttendance} className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <input className={inp} placeholder="Student ID (any text)" required value={newAtt.student_id} onChange={e => setNewAtt({ ...newAtt, student_id: e.target.value })} />
-                <input className={inp} placeholder="Student Name" required value={newAtt.student_name} onChange={e => setNewAtt({ ...newAtt, student_name: e.target.value })} />
+
+                <select
+                  className={inp}
+                  value={newAtt.student_id}
+                  onChange={(e) => {
+                    const student = students.find(s => s.id === e.target.value);
+
+                    setNewAtt({
+                      ...newAtt,
+                      student_id: e.target.value,
+                      student_name: student?.name || '',
+                    });
+                  }}
+                >
+                  <option value="">Select Student</option>
+
+                  {students.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+                {/* <input className={inp} placeholder="Student ID (any text)" required value={newAtt.student_id} onChange={e => setNewAtt({ ...newAtt, student_id: e.target.value })} /> */}
+                {/* <input className={inp} placeholder="Student Name" required value={newAtt.student_name} onChange={e => setNewAtt({ ...newAtt, student_name: e.target.value })} /> */}
                 <input className={inp} type="date" required value={newAtt.date} onChange={e => setNewAtt({ ...newAtt, date: e.target.value })} />
                 <select className={inp} value={newAtt.status} onChange={e => setNewAtt({ ...newAtt, status: e.target.value })}>
                   <option>Present</option><option>Absent</option>
