@@ -79,3 +79,5 @@ type SubmitCorrectionRequest struct {
 	Date    string `json:"date"`
 	Message string `json:"message"`
 }
+
+

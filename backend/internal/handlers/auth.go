@@ -99,8 +99,8 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 func GetMe(w http.ResponseWriter, r *http.Request) {
 	sess, _ := store.Get(r, "session")
 	userID, _ := sess.Values["user_id"].(string)
-	role, _   := sess.Values["role"].(string)
-	name, _   := sess.Values["name"].(string)
+	role, _ := sess.Values["role"].(string)
+	name, _ := sess.Values["name"].(string)
 	if userID == "" {
 		jsonErr(w, "Not authenticated", http.StatusUnauthorized)
 		return

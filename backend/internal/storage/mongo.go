@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	client     *mongo.Client
-	db         *mongo.Database
-	useMemory  bool
+	client    *mongo.Client
+	db        *mongo.Database
+	useMemory bool
 
 	// collections
 	adminCol      *mongo.Collection
@@ -47,8 +47,8 @@ func Connect(uri string) {
 	}
 
 	db = client.Database("attendance_db")
-	adminCol      = db.Collection("admins")
-	studentCol    = db.Collection("students")
+	adminCol = db.Collection("admins")
+	studentCol = db.Collection("students")
 	attendanceCol = db.Collection("attendance")
 	correctionCol = db.Collection("corrections")
 
@@ -216,6 +216,63 @@ func CreateStudent(s models.Student) (string, error) {
 	s.ID = primitive.NewObjectID()
 	_, err := studentCol.InsertOne(ctx(), s)
 	return s.ID.Hex(), err
+}
+
+func UpdateStudent(id, name, email string) (*models.Student, error) {
+
+	// In-memory update
+	if useMemory {
+		for i, s := range memStudents {
+
+			if s.ID.Hex() == id {
+
+				memStudents[i].Name = name
+				memStudents[i].Email = email
+
+				return &memStudents[i], nil
+			}
+		}
+
+		return nil, mongo.ErrNoDocuments
+	}
+
+	// MongoDB update
+	oid, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"name":  name,
+			"email": email,
+		},
+	}
+
+	_, err = studentCol.UpdateOne(
+		ctx(),
+		bson.M{"_id": oid},
+		update,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Return updated student
+	var updatedStudent models.Student
+
+	err = studentCol.FindOne(
+		ctx(),
+		bson.M{"_id": oid},
+	).Decode(&updatedStudent)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &updatedStudent, nil
 }
 
 func GetAllStudents() ([]models.Student, error) {
