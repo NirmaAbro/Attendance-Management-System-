@@ -104,6 +104,7 @@ import (
 	"attendance-manager/internal/storage"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -516,10 +517,20 @@ func StudentChangePassword(w http.ResponseWriter, r *http.Request) {
 		jsonErr(w, "Student not found", http.StatusNotFound)
 		return
 	}
+	// if student.Password != req.OldPassword {
+	// 	jsonErr(w, "Old password is incorrect", http.StatusUnauthorized)
+	// 	return
+	// }
+
 	if student.Password != req.OldPassword {
+
+		log.Println("DATABASE PASSWORD:", student.Password)
+		log.Println("REQUEST PASSWORD:", req.OldPassword)
+
 		jsonErr(w, "Old password is incorrect", http.StatusUnauthorized)
 		return
 	}
+
 	if err := storage.UpdateStudentPassword(userID, req.NewPassword); err != nil {
 		jsonErr(w, "Failed to update password", http.StatusInternalServerError)
 		return
